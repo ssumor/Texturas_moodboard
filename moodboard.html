@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generador de Moodboards</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F7F5F2;color:#1a1714;min-height:100vh;padding:1.5rem 1rem 3rem}
+.app{max-width:900px;margin:0 auto}
+h1{font-size:18px;font-weight:600;margin-bottom:1.4rem;color:#1a1714}
+.steps{display:flex;border-bottom:1px solid #e0dbd4;margin-bottom:1.4rem}
+.stab{padding:8px 16px;font-size:12px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;white-space:nowrap}
+.stab.on{color:#1a1714;border-bottom-color:#1a1714}
+.panel{display:none}.panel.on{display:block}
+.input-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.icard{flex:1;min-width:200px;border:1px solid #e0dbd4;border-radius:12px;padding:14px;position:relative;transition:border-color .12s;background:#fff}
+.icard.sel{border-color:#1a1714}
+.icard-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.icard-sub{font-size:11px;color:#888;margin-bottom:10px}
+.colorcard{cursor:pointer}
+.filecard input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.cpick-row{display:flex;align-items:center;gap:10px}
+.cprev{width:40px;height:40px;border-radius:8px;border:1px solid #e0dbd4;cursor:pointer;flex-shrink:0}
+.cpick-info{font-size:12px;color:#666;line-height:1.5}
+.cpick-info strong{color:#1a1714;font-weight:500}
+input[type=color]{position:absolute;opacity:0;width:0;height:0}
+.img-thumb{width:100%;height:90px;object-fit:cover;border-radius:6px;margin-top:6px;display:none}
+.ext-dots{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.edot{width:26px;height:26px;border-radius:6px;cursor:pointer;border:2px solid transparent;flex-shrink:0}
+.edot.sel{border-color:#1a1714}
+.warn-box{display:none;background:#FEF3E2;border:1px solid #F6BC60;border-radius:10px;padding:10px 14px;margin-bottom:1rem;font-size:12px;color:#8A4F00;line-height:1.5}
+.warn-box.show{display:block}
+.warn-actions{display:flex;gap:8px;margin-top:8px}
+.wbtn{font-size:11px;padding:4px 12px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#1a1714;cursor:pointer}
+.wbtn.active{border-color:#1a1714;font-weight:500}
+.pal-bar{display:flex;height:56px;border-radius:10px;overflow:hidden;margin-bottom:.9rem}
+.pseg{display:flex;flex-direction:column;justify-content:flex-end;padding:5px 8px}
+.pseg .pr{font-size:10px;opacity:.6}.pseg .ph{font-size:10px;font-weight:500}
+.htabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.7rem}
+.hbtn{font-size:11px;padding:4px 11px;border:1px solid #e0dbd4;border-radius:14px;background:transparent;color:#666;cursor:pointer}
+.hbtn.on{background:#1a1714;color:#fff;border-color:transparent}
+.elbl{font-size:10px;color:#aaa;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.egrid{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:.9rem}
+.echip{display:flex;align-items:center;gap:4px;padding:3px 8px 3px 4px;border:1px solid #e0dbd4;border-radius:14px;cursor:pointer;background:#fff}
+.echip.sel{border-color:#1a1714}
+.echip.disabled{opacity:.3;cursor:not-allowed}
+.edot2{width:12px;height:12px;border-radius:50%}
+.ename{font-size:11px;color:#666}.echip.sel .ename{color:#1a1714;font-weight:500}
+.img-ecc-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px}
+.iecc{display:flex;border:1px solid #e0dbd4;border-radius:7px;overflow:hidden;cursor:pointer;background:#fff}
+.iecc.sel{border-color:#1a1714;border-width:1.5px}
+.iecc.disabled{opacity:.3;cursor:not-allowed}
+.iecc-o{width:24px;height:30px;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.8)}
+.iecc-c{width:24px;height:30px}
+.iecc-hex{font-size:10px;color:#666;padding:0 7px}
+.mb-wrap{position:relative;margin-bottom:8px}
+canvas{display:block;width:100%;border-radius:12px;border:1px solid #e0dbd4}
+.ov{position:absolute;inset:0;background:rgba(247,245,242,.92);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.ov.hidden{display:none}
+.ovtxt{font-size:12px;color:#666}
+.ovbar-w{width:180px;height:2px;background:#e0dbd4;border-radius:2px;overflow:hidden}
+.ovbar{height:100%;background:#1a1714;width:0%;transition:width .2s}
+.mbfoot{font-size:11px;color:#aaa}
+.btn{font-size:12px;padding:6px 14px;border:1px solid #e0dbd4;border-radius:8px;background:#fff;color:#1a1714;cursor:pointer}
+.btn-p{background:#1a1714;color:#fff;border-color:transparent}
+.brow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sep{border:none;border-top:1px solid #e0dbd4;margin:.8rem 0}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Generador de Moodboards</h1>
+<div class="steps">
+  <div class="stab on" data-s="1">1 · Color o imagen</div>
+  <div class="stab" data-s="2">2 · Paleta</div>
+  <div class="stab" data-s="3">3 · Moodboard</div>
+</div>
+<div class="panel on" id="p1">
+  <div class="input-row">
+    <div class="icard colorcard sel" id="cardColor">
+      <div class="icard-title">Elige un color base</div>
+      <div class="icard-sub">Punto de partida para la paleta</div>
+      <div class="cpick-row">
+        <div class="cprev" id="cprev"></div>
+        <input type="color" id="cpick" value="#C4A882">
+        <div class="cpick-info"><strong id="chex">#C4A882</strong><br><span id="cname">Beige cálido</span></div>
+      </div>
+    </div>
+    <div class="icard filecard" id="cardImg">
+      <div class="icard-title">Sube una imagen</div>
+      <div class="icard-sub">Extrae colores directamente de la foto</div>
+      <input type="file" accept="image/*" id="ffile">
+      <img id="ithumb" class="img-thumb" alt="">
+      <div class="ext-dots" id="extdots"></div>
+    </div>
+  </div>
+  <div class="warn-box" id="warnBox">
+    <strong>Saturación muy alta para interiorismo (<span id="warnSat"></span>%)</strong><br>
+    Este color es más intenso de lo habitual en paletas de interiores.
+    <div class="warn-actions">
+      <button class="wbtn" id="keepBtn">Mantener original</button>
+      <button class="wbtn active" id="softenBtn">Usar versión suavizada</button>
+    </div>
+  </div>
+  <canvas id="acanvas" style="display:none"></canvas>
+  <div style="display:flex;justify-content:flex-end;margin-top:.5rem">
+    <button class="btn btn-p" onclick="goStep(2)">Siguiente → Paleta</button>
+  </div>
+</div>
+<div class="panel" id="p2">
+  <div class="pal-bar" id="palbar"></div>
+  <div class="elbl" style="margin-bottom:4px">Armonía</div>
+  <div class="htabs" id="htabs"></div>
+  <div class="sep"></div>
+  <div class="elbl">Toque excéntrico</div>
+  <div id="imgecczone" style="display:none">
+    <div style="font-size:11px;color:#888;margin-bottom:5px">Acentos de la imagen → versión rebajada</div>
+    <div class="img-ecc-row" id="imgeccrow"></div>
+    <div style="font-size:11px;color:#aaa;margin:.3rem 0">o del catálogo:</div>
+  </div>
+  <div class="egrid" id="egrid"></div>
+  <div style="font-size:11px;color:#aaa" id="eccNote"></div>
+  <div class="sep"></div>
+  <div class="brow">
+    <button class="btn" onclick="goStep(1)">← Volver</button>
+    <button class="btn btn-p" onclick="goStep(3)">Siguiente → Moodboard</button>
+  </div>
+</div>
+<div class="panel" id="p3">
+  <div class="mb-wrap">
+    <canvas id="mb" width="1300" height="900"></canvas>
+    <div class="ov" id="ov">
+      <div class="ovtxt" id="ovtxt">Cargando piezas…</div>
+      <div class="ovbar-w"><div class="ovbar" id="ovbar"></div></div>
+    </div>
+  </div>
+  <div class="brow" style="margin-bottom:6px">
+    <span class="mbfoot" id="mbfoot" style="flex:1"></span>
+    <button class="btn" onclick="goStep(2)">← Volver</button>
+    <button class="btn" id="varbtn">Nueva composición</button>
+    <button class="btn" id="dlbtn">Descargar PNG</button>
+  </div>
+</div>
+</div>
+<script>
+const W=1300,H=900,GHUSER='ssumor',GHREPO='Texturas_moodboard',GHBRANCH='main'
+function ghUrl(folder,file){return `https://cdn.jsdelivr.net/gh/${GHUSER}/${GHREPO}@${GHBRANCH}/${folder}/${encodeURIComponent(file)}`}
+
+const LIBRARY=[
+  {file:'fieltro_gris.jpg',cat:'fieltro',warm:null,light:'medio',style:['rustico'],finish:'mate'},
+  {file:'hormigon_beige.jpg',cat:'hormigon',warm:true,light:'claro',style:['industrial'],finish:'mate'},
+  {file:'hormigon_beige2.jpg',cat:'hormigon',warm:true,light:'claro',style:['industrial'],finish:'mate'},
+  {file:'hormigon_gris.jpg',cat:'hormigon',warm:false,light:'claro',style:['industrial'],finish:'mate'},
+  {file:'lino_liso_gris.jpg',cat:'lino',warm:null,light:'claro',style:['rustico'],finish:'mate'},
+  {file:'lino_liso_gris_oscuro.jpg',cat:'lino',warm:null,light:'oscuro',style:['rustico'],finish:'mate'},
+  {file:'lino_liso_gris_verdoso.jpg',cat:'lino',warm:false,light:'medio',style:['rustico'],finish:'mate'},
+  {file:'lino_liso_naranja.jpg',cat:'lino',warm:true,light:'medio',vivid:true,style:['rustico'],finish:'mate'},
+  {file:'madera_dorada.jpg',cat:'madera',warm:true,light:'medio',style:['rustico'],finish:'satinado'},
+  {file:'madera_parquet_pino_dorado.jpg',cat:'madera',warm:true,light:'medio',joints:true,style:['rustico'],finish:'satinado'},
+  {file:'madera_pino_dorada.jpg',cat:'madera',warm:true,light:'claro',style:['rustico'],finish:'mate'},
+  {file:'madera_roble_dorada.jpg',cat:'madera',warm:true,light:'medio',style:['refinado'],finish:'satinado'},
+  {file:'madera_roble_natural.jpg',cat:'madera',warm:true,light:'medio',style:['rustico'],finish:'mate'},
+  {file:'madera_roble_oscura.jpg',cat:'madera',warm:true,light:'oscuro',style:['refinado'],finish:'satinado'},
+  {file:'madera_sapeli_oscura.jpg',cat:'madera',warm:true,light:'oscuro',style:['refinado'],finish:'satinado'},
+  {file:'marmol_gris_glossy.jpg',cat:'marmol',warm:false,light:'claro',style:['refinado'],finish:'glossy'},
+  {file:'marmol_onyx_blanco.jpg',cat:'marmol',warm:false,light:'claro',style:['refinado'],finish:'glossy'},
+  {file:'metal_acero_frio.jpg',cat:'metal',warm:false,light:'medio',style:['industrial'],finish:'satinado'},
+  {file:'metal_cepillado_frio.jpg',cat:'metal',warm:false,light:'medio',style:['industrial'],finish:'satinado'},
+  {file:'metal_cobre_cálido.jpg',cat:'metal',warm:true,light:'medio',vivid:true,style:['refinado'],finish:'satinado'},
+  {file:'metal_cromado_frio.jpg',cat:'metal',warm:false,light:'claro',style:['refinado'],finish:'glossy'},
+  {file:'metal_mate_gris_oscuro.jpg',cat:'metal',warm:null,light:'oscuro',style:['industrial'],finish:'mate'},
+  {file:'metal_mate_negro.jpg',cat:'metal',warm:null,light:'oscuro',style:['industrial'],finish:'mate'},
+  {file:'mortero_grano_blanco.jpg',cat:'mortero',warm:false,light:'claro',style:['rustico'],finish:'mate'},
+  {file:'mortero_grano_blanco2.jpg',cat:'mortero',warm:false,light:'claro',style:['rustico'],finish:'mate'},
+  {file:'tapiceria_gris.jpg',cat:'tapiceria',warm:null,light:'medio',style:['refinado'],finish:'mate'},
+  {file:'tapiceria_hueso.jpg',cat:'tapiceria',warm:true,light:'claro',style:['refinado'],finish:'mate'},
+]
+
+const FURNITURE=[
+  {file:'mesa_circular_marmol_blanco_knoll_saarinen.jpg',type:'mesa',warm:false,light:'claro',style:['refinado']},
+  {file:'silla_madera_oscura_kave_home_gena.jpg',type:'silla',warm:true,light:'oscuro',style:['refinado']},
+  {file:'mesa_circular_madera_roble_kave_home_nealy.jpg',type:'mesa',warm:true,light:'medio',style:['refinado']},
+  {file:'mesa_ovalada_madera_roble_kave_home_nealy.jpg',type:'mesa',warm:true,light:'medio',style:['refinado']},
+  {file:'mesa_ovalada_madera_oscura_kave_home_mailen.jpg',type:'mesa',warm:true,light:'oscuro',style:['refinado']},
+  {file:'aparador_madera_oscura_kave_home_mailen.jpg',type:'aparador',warm:true,light:'oscuro',style:['refinado']},
+  {file:'silla_negra_nogal_viccarbe_quadra.jpg',type:'silla',warm:true,light:'oscuro',style:['refinado']},
+  {file:'silla_negra_roble_viccarbe_quadra.jpg',type:'silla',warm:true,light:'medio',style:['refinado']},
+  {file:'sofa_curvo_borreguito_blanco_kave_home_martina.jpg',type:'sofa',warm:false,light:'claro',style:['refinado']},
+  {file:'sofa_tweed_marron_nv_gallery_waffle.png',type:'sofa',warm:true,light:'oscuro',style:['refinado']},
+  {file:'silla_metal_negro_rafia_knoll_cesca.jpg',type:'silla',warm:null,light:'oscuro',style:['refinado','escandinavo']},
+  {file:'silla_madera_clara_carl_hansem_&_son_wishbon.png',type:'silla',warm:true,light:'claro',style:['refinado','escandinavo']},
+  {file:'silla_madera_oscura_carl_hansem_&_son_wishbone.png',type:'silla',warm:true,light:'oscuro',style:['refinado','escandinavo']},
+  {file:'silla_negra_carl_hansem_&_son_wishbon.jpg',type:'silla',warm:null,light:'oscuro',style:['refinado','escandinavo']},
+  {file:'silla_negra_viccarbe_quadra.jpg',type:'silla',warm:null,light:'oscuro',style:['escandinavo']},
+  {file:'silla_blanca_viccarbe_quadra.jpg',type:'silla',warm:false,light:'claro',style:['escandinavo']},
+  {file:'silla_madera_clara_kave_home_romane.jpg',type:'silla',warm:true,light:'claro',style:['escandinavo']},
+  {file:'aparador_madera_fresno_kave_home_mailen.jpg',type:'aparador',warm:true,light:'claro',style:['escandinavo']},
+  {file:'mesa_ovalada_madera_clara_kave_home_oqui.jpg',type:'mesa',warm:true,light:'claro',style:['escandinavo']},
+  {file:'mesa_rectangular_cristal_kave_home_burano.jpg',type:'mesa',warm:false,light:'claro',style:['escandinavo']},
+  {file:'sofa_blanco_kave_home_alea.jpg',type:'sofa',warm:false,light:'claro',style:['escandinavo']},
+  {file:'sofa_blanco_kave_home_gala.jpg',type:'sofa',warm:false,light:'claro',style:['escandinavo']},
+  {file:'sofa_gris_claro_kave_home_gala.jpg',type:'sofa',warm:false,light:'claro',style:['escandinavo']},
+  {file:'sofa_gris_grassoler_boy.jpg',type:'sofa',warm:false,light:'medio',style:['escandinavo']},
+  {file:'mesa_madera_calida_taller_Indias_kuno.jpg',type:'mesa',warm:true,light:'medio',style:['rustico']},
+  {file:'mesa_madera_calida_taller_indias_begur.png',type:'mesa',warm:true,light:'medio',style:['rustico']},
+  {file:'mesa_redonda_roble_kave_home_naanim.png',type:'mesa',warm:true,light:'medio',style:['rustico']},
+  {file:'mesa_rectangular_madera_calida_kave_home_deyanira.jpg',type:'mesa',warm:true,light:'medio',style:['rustico','escandinavo']},
+]
+
+const STYLE_COMPAT={
+  rustico:{rustico:'directo',industrial:'directo',refinado:'matizado',escandinavo:'matizado'},
+  industrial:{rustico:'directo',industrial:'directo',refinado:'directo',escandinavo:'directo'},
+  refinado:{rustico:'matizado',industrial:'directo',refinado:'directo',escandinavo:'directo'},
+  escandinavo:{rustico:'matizado',industrial:'directo',refinado:'directo',escandinavo:'directo'},
+}
+function bestCompat(dom,styles){let b='matizado';styles.forEach(s=>{if(STYLE_COMPAT[dom][s]==='directo')b='directo'});return b}
+
+const FSC={rustico:0,industrial:0,refinado:0,escandinavo:0}
+FURNITURE.forEach(f=>f.style.forEach(s=>FSC[s]++))
+const maxFSC=Math.max(...Object.values(FSC))
+const SBB={};Object.keys(FSC).forEach(s=>{SBB[s]=(1-FSC[s]/maxFSC)*2.2})
+
+function hsl2rgb(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return[Math.round(f(0)*255),Math.round(f(8)*255),Math.round(f(4)*255)]}
+function toHex(h,s,l){h=((h%360)+360)%360;s=Math.min(100,Math.max(0,s));l=Math.min(95,Math.max(5,l));const[r,g,b]=hsl2rgb(h,s,l);return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('')}
+function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h,s,l=(mx+mn)/2;if(mx===mn){h=s=0}else{const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;default:h=((r-g)/d+4)/6}}return[Math.round(h*360),Math.round(s*100),Math.round(l*100)]}
+function hexFromRgb(r,g,b){return'#'+[r,g,b].map(v=>Math.min(255,Math.max(0,Math.round(v))).toString(16).padStart(2,'0')).join('')}
+function lumV(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255,f=v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4;return.2126*f(r)+.7152*f(g)+.0722*f(b)}
+function fgc(hex,a=1){return lumV(hex)>.36?`rgba(20,15,8,${a})`:`rgba(248,243,234,${a})`}
+function cl(v,a,b){return Math.max(a,Math.min(b,v))}
+function rv(n){return(Math.random()*2-1)*n}
+function hm(h){return((h%360)+360)%360}
+function hueDist(a,b){const d=Math.abs(a-b);return Math.min(d,360-d)}
+function dist2(a,b){return(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+function kmeans(px,k=10,it=14){
+  const s=[];const st=Math.max(1,Math.floor(px.length/1500));for(let i=0;i<px.length;i+=st)s.push(px[i])
+  let c=[s[Math.floor(Math.random()*s.length)]]
+  while(c.length<k){const d=s.map(p=>Math.min(...c.map(cc=>dist2(p,cc))));const t=d.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<s.length;i++){r-=d[i];if(r<=0){c.push(s[i]);break}};if(c.length<k)c.push(s[Math.floor(Math.random()*s.length)])}
+  let lb=new Array(s.length).fill(0)
+  for(let i=0;i<it;i++){lb=s.map(p=>c.reduce((bi,cc,i)=>dist2(p,cc)<dist2(p,c[bi])?i:bi,0));const sm=Array.from({length:k},()=>[0,0,0,0]);lb.forEach((l,i)=>{sm[l][0]+=s[i][0];sm[l][1]+=s[i][1];sm[l][2]+=s[i][2];sm[l][3]++});c=sm.map((ss,i)=>ss[3]?[ss[0]/ss[3],ss[1]/ss[3],ss[2]/ss[3]]:c[i])}
+  const cn=new Array(k).fill(0);lb.forEach(l=>cn[l]++)
+  return c.map((cc,i)=>({hsl:rgb2hsl(cc[0],cc[1],cc[2]),hex:hexFromRgb(cc[0],cc[1],cc[2]),count:cn[i]})).sort((a,b)=>b.count-a.count)
+}
+function calmDown(hsl){const[h,s,l]=hsl;if(s<20)return{h,s:cl(s,2,20),l:cl(l,40,90)};if(s<45)return{h,s:cl(s*.72,8,36),l:cl(l>70?l*.9:l*1.05,36,82)};return{h,s:cl(s*.5+8,18,50),l:cl(l>60?l*.76:l*.92,26,58)}}
+
+const G={H:34,S:36,L:64,harmony:'neutros',ecc:{type:'catalog',key:'mostaza'},clusters:[],rawH:34,rawS:36,rawL:64,softenChoice:'keep'}
+const SAT_LIMIT=48,ECC_HUE_MIN=55,ECC_HUE_SAFE=75,ECC_SAT_MAXDIFF=45
+
+function hexToHsl(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return rgb2hsl(r,g,b)}
+function applyBaseColor(H,S,L){
+  G.rawH=H;G.rawS=S;G.rawL=L
+  const wb=document.getElementById('warnBox')
+  if(S>SAT_LIMIT){wb.classList.add('show');document.getElementById('warnSat').textContent=S;setSoftenChoice(G.softenChoice||'soften')}
+  else{wb.classList.remove('show');G.H=H;G.S=S;G.L=L}
+}
+function setSoftenChoice(choice){
+  G.softenChoice=choice
+  document.getElementById('keepBtn').classList.toggle('active',choice==='keep')
+  document.getElementById('softenBtn').classList.toggle('active',choice==='soften')
+  if(choice==='soften'){G.H=G.rawH;G.S=Math.min(G.rawS,42);G.L=G.rawL}
+  else{G.H=G.rawH;G.S=G.rawS;G.L=G.rawL}
+}
+document.getElementById('keepBtn').onclick=()=>setSoftenChoice('keep')
+document.getElementById('softenBtn').onclick=()=>setSoftenChoice('soften')
+
+function updatePick(){
+  const hex=document.getElementById('cpick').value
+  document.getElementById('cprev').style.background=hex
+  document.getElementById('chex').textContent=hex.toUpperCase()
+  const[H,S,L]=hexToHsl(hex)
+  applyBaseColor(H,S,L)
+  const n=S<18?'Neutro':H<40||H>330?'Cálido':H<90?'Amarillo cálido':H<170?'Fresco':H<270?'Frío':'Suave'
+  document.getElementById('cname').textContent=n
+}
+document.getElementById('cpick').oninput=updatePick
+document.getElementById('cprev').onclick=()=>document.getElementById('cpick').click()
+document.getElementById('cprev').style.background='#C4A882'
+updatePick()
+
+function selInput(mode){document.getElementById('cardColor').classList.toggle('sel',mode==='color');document.getElementById('cardImg').classList.toggle('sel',mode==='img')}
+document.getElementById('cardColor').addEventListener('click',function(e){if(e.target.closest('input[type=color]'))return;selInput('color')})
+document.getElementById('ffile').addEventListener('change',function(e){
+  const file=e.target.files[0];if(!file)return
+  selInput('img')
+  const reader=new FileReader()
+  reader.onload=ev=>{
+    const img=new Image()
+    img.onload=()=>{
+      const th=document.getElementById('ithumb');th.src=ev.target.result;th.style.display='block'
+      const c=document.getElementById('acanvas')
+      const sc=Math.min(140/img.width,140/img.height,1)
+      c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc)
+      const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height)
+      const d=ctx.getImageData(0,0,c.width,c.height).data
+      const px=[];for(let i=0;i<d.length;i+=4){const br=(d[i]+d[i+1]+d[i+2])/3;if(br>14&&br<241)px.push([d[i],d[i+1],d[i+2]])}
+      const cl2=kmeans(px,10,14);G.clusters=cl2
+      const base=cl2.filter(c=>c.hsl[2]>18&&c.hsl[2]<88)[0]||cl2[0]
+      applyBaseColor(base.hsl[0],base.hsl[1],base.hsl[2])
+      const dots=document.getElementById('extdots');dots.innerHTML=''
+      cl2.slice(0,8).forEach((cl3,i)=>{
+        const d2=document.createElement('div');d2.className='edot'+(i===0?' sel':'')
+        d2.style.background=cl3.hex
+        d2.addEventListener('click',function(e){e.stopPropagation();dots.querySelectorAll('.edot').forEach(x=>x.classList.remove('sel'));d2.classList.add('sel');applyBaseColor(cl3.hsl[0],cl3.hsl[1],cl3.hsl[2])})
+        dots.appendChild(d2)
+      })
+    }
+    img.src=ev.target.result
+  }
+  reader.readAsDataURL(file)
+})
+
+const ECC=[
+  {key:'mostaza',label:'Mostaza',h:44,s:54,l:48},{key:'ocre',label:'Ocre',h:50,s:48,l:44},
+  {key:'curry',label:'Curry',h:40,s:58,l:40},{key:'paja',label:'Paja seca',h:52,s:36,l:62},
+  {key:'terracota',label:'Terracota',h:16,s:48,l:46},{key:'teja',label:'Teja',h:12,s:52,l:38},
+  {key:'albaricoque',label:'Albaricoque',h:28,s:44,l:58},{key:'rosa_polvo',label:'Rosa polvo',h:346,s:34,l:60},
+  {key:'ciruela',label:'Ciruela',h:330,s:30,l:32},{key:'burdeos',label:'Burdeos',h:344,s:42,l:26},
+  {key:'verde_sucio',label:'Verde sucio',h:90,s:36,l:42},{key:'salvia',label:'Salvia',h:104,s:26,l:46},
+  {key:'oliva',label:'Oliva',h:72,s:38,l:34},{key:'musgo',label:'Musgo',h:86,s:32,l:30},
+  {key:'azul_noche',label:'Azul noche',h:222,s:40,l:30},{key:'azul_gris',label:'Azul gris',h:210,s:24,l:48},
+  {key:'petroleo',label:'Petróleo',h:192,s:38,l:26},{key:'malva',label:'Malva',h:292,s:20,l:44},
+  {key:'gris_calido',label:'Gris cálido',h:30,s:10,l:48},{key:'_gen',label:'Sorpréndeme',h:0,s:0,l:0},
+]
+function eccCompatible(baseS,candS,hueD){if(hueD<ECC_HUE_MIN)return false;if(hueD<ECC_HUE_SAFE&&Math.abs(baseS-candS)>ECC_SAT_MAXDIFF)return false;return true}
+function resolveEcc(){
+  if(G.ecc.type==='image'){
+    const c=calmDown(G.ecc.hsl);let h=hm(c.h+rv(4)),s=cl(c.s+rv(4),4,52),l=cl(c.l+rv(4),20,66)
+    if(!eccCompatible(G.S,s,hueDist(h,G.H))){const fb=ECC.filter(e=>e.key!=='_gen').find(e=>eccCompatible(G.S,e.s,hueDist(e.h,G.H)));if(fb){h=hm(fb.h+rv(7));s=cl(fb.s+rv(6),10,66);l=cl(fb.l+rv(5),18,70)}}
+    return{h,s,l,label:'acento imagen'}
+  }
+  const b=ECC.find(e=>e.key===G.ecc.key)
+  if(!b||b.key==='_gen'){let at=0,eh,es;do{eh=Math.floor(Math.random()*360);es=22+Math.random()*32;at++}while(!eccCompatible(G.S,es,hueDist(eh,G.H))&&at<40);return{h:eh,s:cl(es,18,54),l:cl(28+Math.random()*32,22,62),label:'sorpresa'}}
+  return{h:hm(b.h+rv(7)),s:cl(b.s+rv(6),10,66),l:cl(b.l+rv(5),18,70),label:b.label}
+}
+function isEccUsable(e){return eccCompatible(G.S,e.s,hueDist(e.h,G.H))}
+function sup(H,S,L,dh,sf,lf){return{h:hm(H+dh+rv(3)),s:cl(S*sf+rv(4),3,42),l:cl(L*lf+rv(3),54,94)}}
+function buildPal(){
+  const{H,S,L,harmony}=G
+  const e={...resolveEcc(),label:'Excéntrico'}
+  let sups
+  switch(harmony){
+    case 'mono':sups=[sup(H,S,L,0,.45,1.12),sup(H,S,L,0,.28,1.22),sup(H,S,L,0,.14,1.18)];break
+    case 'analogo':sups=[sup(H,S,L,-22,.65,1.08),sup(H,S,L,+20,.60,1.10),sup(H,S,L,0,.22,1.20)];break
+    case 'neutros':sups=[{h:hm(H+4),s:cl(S*.16+rv(3),3,24),l:cl(88+rv(3),80,94)},{h:hm(38+rv(5)),s:cl(15+rv(4),5,25),l:cl(74+rv(3),64,86)},{h:hm(32+rv(5)),s:cl(11+rv(3),3,22),l:cl(56+rv(3),44,68)}];break
+    case 'tierra':sups=[{h:hm(34+rv(6)),s:cl(22+rv(5),8,34),l:cl(70+rv(3),60,82)},{h:hm(26+rv(5)),s:cl(15+rv(4),5,25),l:cl(82+rv(3),72,92)},{h:hm(20+rv(6)),s:cl(24+rv(5),10,36),l:cl(52+rv(4),42,64)}];break
+  }
+  return[{h:H,s:S,l:L,label:'Base'},...sups.map((s,i)=>({...s,label:['Soporte 1','Soporte 2','Soporte 3'][i]})),e]
+}
+
+function buildStep2(){renderPalbar();buildHarmonyTabs();buildEccZone()}
+function renderPalbar(){
+  const pal=buildPal(),bar=document.getElementById('palbar');bar.innerHTML=''
+  const ws=[38,22,18,14,8]
+  pal.forEach((c,i)=>{const hex=toHex(c.h,c.s,c.l),f=fgc(hex);const seg=document.createElement('div');seg.className='pseg';seg.style.cssText=`flex:${ws[i]};background:${hex};color:${f}`;seg.innerHTML=`<span class="pr">${c.label}</span><span class="ph">${hex.toUpperCase()}</span>`;bar.appendChild(seg)})
+}
+function buildHarmonyTabs(){
+  const row=document.getElementById('htabs');row.innerHTML=''
+  ;[{k:'neutros',l:'Con neutros'},{k:'mono',l:'Monocromático'},{k:'analogo',l:'Análogo'},{k:'tierra',l:'Tierra'}].forEach(m=>{
+    const btn=document.createElement('button');btn.className='hbtn'+(m.k===G.harmony?' on':'');btn.textContent=m.l
+    btn.onclick=()=>{row.querySelectorAll('.hbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');G.harmony=m.k;renderPalbar()}
+    row.appendChild(btn)
+  })
+}
+function buildEccZone(){
+  const imgzone=document.getElementById('imgecczone'),imgrow=document.getElementById('imgeccrow'),egrid=document.getElementById('egrid')
+  imgrow.innerHTML='';egrid.innerHTML=''
+  const saturated=G.clusters.filter(c=>c.hsl[1]>38&&c.hsl[2]>18&&c.hsl[2]<82&&hueDist(c.hsl[0],G.H)>20).slice(0,6)
+  function selEcc(type,data,chip){imgrow.querySelectorAll('.iecc').forEach(x=>x.classList.remove('sel'));egrid.querySelectorAll('.echip').forEach(x=>x.classList.remove('sel'));chip.classList.add('sel');G.ecc=type==='image'?{type:'image',hsl:data.hsl}:{type:'catalog',key:data.key};renderPalbar()}
+  if(saturated.length>0){
+    imgzone.style.display='block'
+    saturated.forEach((c,i)=>{
+      const calm=calmDown(c.hsl),calmHex=toHex(calm.h,calm.s,calm.l)
+      const usable=eccCompatible(G.S,calm.s,hueDist(calm.h,G.H))
+      const chip=document.createElement('div');chip.className='iecc'+(i===0?' sel':'')+(usable?'':' disabled')
+      chip.innerHTML=`<div class="iecc-o" style="background:${c.hex}">→</div><div class="iecc-c" style="background:${calmHex}"></div><span class="iecc-hex">${calmHex.toUpperCase()}${usable?'':' ⚠'}</span>`
+      if(usable)chip.onclick=()=>selEcc('image',c,chip)
+      imgrow.appendChild(chip)
+    })
+    const fu=saturated.find(c=>{const calm=calmDown(c.hsl);return eccCompatible(G.S,calm.s,hueDist(calm.h,G.H))})
+    G.ecc={type:'image',hsl:(fu||saturated[0]).hsl}
+  } else {imgzone.style.display='none'}
+  let dc=0
+  ECC.forEach(e=>{
+    const hex=e.key==='_gen'?toHex(hm(G.H+137),38,42):toHex(e.h,e.s,e.l)
+    const usable=e.key==='_gen'?true:isEccUsable(e)
+    const chip=document.createElement('div');chip.className='echip'+(usable?'':' disabled')
+    chip.innerHTML=`<div class="edot2" style="background:${hex}"></div><span class="ename">${e.label}</span>`
+    if(usable){chip.onclick=()=>selEcc('catalog',e,chip)}else{dc++}
+    egrid.appendChild(chip)
+  })
+  document.getElementById('eccNote').textContent=dc>0?`${dc} colores atenuados por incompatibilidad de matiz.`:''
+  if(saturated.length===0){
+    const fu2=Array.from(egrid.querySelectorAll('.echip')).find(c=>!c.classList.contains('disabled'))
+    if(fu2){fu2.classList.add('sel');const idx=Array.from(egrid.children).indexOf(fu2);G.ecc={type:'catalog',key:ECC[idx].key}}
+  }
+}
+
+function classifyTemp(H,S){
+  if(S<20)return 'neutra'
+  if(H>=330||H<=50)return 'calida'
+  if(H>160&&H<270)return 'fria'
+  return 'neutra'
+}
+function anchorTempBonus(item,isWarm){
+  if(isWarm===true&&item.warm===true)return 3.5
+  return 0
+}
+function splitWidths(totalW,fractions,gap){
+  const n=fractions.length,usableW=totalW-gap*(n-1)
+  const widths=fractions.slice(0,-1).map(f=>Math.floor(f*usableW))
+  widths.push(usableW-widths.reduce((a,b)=>a+b,0))
+  return widths
+}
+
+function pickAll(){
+  const temp=classifyTemp(G.H,G.S)
+  const isWarm=temp==='calida'?true:temp==='fria'?false:(Math.random()<0.5)
+  const lumKey=G.L>64?'claro':G.L<40?'oscuro':'medio'
+  function baseScore(item){
+    let s=0;if(isWarm!==null&&item.warm===isWarm)s+=3;if(item.warm===null)s+=1;if(item.light===lumKey)s+=2;if(item.vivid)s-=1;return s+Math.random()*1.5
+  }
+  const anchorOpts=LIBRARY.filter(i=>['marmol','hormigon','mortero'].includes(i.cat))
+  const anchorRanked=[...anchorOpts].sort((a,b)=>(baseScore(b)+anchorTempBonus(b,isWarm))-(baseScore(a)+anchorTempBonus(a,isWarm)))
+  const anchor=pick(anchorRanked.slice(0,3))
+  const dom=anchor.style[0]
+  function csTex(item){return baseScore(item)+(bestCompat(dom,item.style)==='directo'?4:2)}
+  function csFur(item){
+    const compat=bestCompat(dom,item.style)
+    const tp=item.warm!==null&&item.warm!==isWarm?-3:0
+    const bb=Math.max(...item.style.map(s=>SBB[s]))
+    return baseScore(item)+(compat==='directo'?4:2)+tp+bb
+  }
+  const texMats=[anchor]
+  ;[['madera'],['metal'],['lino','tapiceria','fieltro']].forEach(cats=>{
+    const opts=LIBRARY.filter(i=>cats.includes(i.cat))
+    if(opts.length)texMats.push([...opts].sort((a,b)=>csTex(b)-csTex(a))[0])
+  })
+  const furniturePicks=['silla','mesa','sofa'].map(type=>{
+    const opts=FURNITURE.filter(f=>f.type===type)
+    return{...[...opts].sort((a,b)=>csFur(b)-csFur(a))[0],flag:bestCompat(dom,[...opts].sort((a,b)=>csFur(b)-csFur(a))[0].style)}
+  })
+  return{texMats,furniturePicks,dom,isWarm,temp}
+}
+
+function loadImg(url){
+  return new Promise(resolve=>{
+    const img=new Image();img.crossOrigin='anonymous'
+    const t=setTimeout(()=>resolve(null),9000)
+    img.onload=()=>{clearTimeout(t);resolve(img)}
+    img.onerror=()=>{clearTimeout(t);resolve(null)}
+    img.src=url
+  })
+}
+
+let cached=null
+const P=14
+const HARD=['marmol','hormigon','mortero','metal']
+const CLABELS={marmol:'Mármol',hormigon:'Hormigón',mortero:'Mortero',metal:'Metal'}
+
+function rr(ctx,x,y,w,h,r=10){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath()}
+function blkCover(ctx,img,hex,x,y,w,h,label){
+  ctx.save();rr(ctx,x,y,w,h,10);ctx.clip()
+  if(img){const sc=Math.max(w/img.width,h/img.height);ctx.drawImage(img,x+(w-img.width*sc)/2,y+(h-img.height*sc)/2,img.width*sc,img.height*sc)}
+  else{ctx.fillStyle=hex;ctx.fillRect(x,y,w,h)}
+  if(label){
+    const tx=x+10,ty=y+h-12
+    ctx.font='500 13px sans-serif';ctx.textAlign='left'
+    ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=3.5;ctx.lineJoin='round';ctx.strokeText(label,tx,ty)
+    ctx.fillStyle='rgba(255,255,255,.95)';ctx.fillText(label,tx,ty)
+  }
+  ctx.restore()
+}
+function blkContain(ctx,img,x,y,w,h){
+  ctx.save();rr(ctx,x,y,w,h,10);ctx.clip()
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(x,y,w,h)
+  if(img){const sc=Math.min(w*.9/img.width,h*.9/img.height);ctx.drawImage(img,x+(w-img.width*sc)/2,y+(h-img.height*sc)/2,img.width*sc,img.height*sc)}
+  else{ctx.fillStyle='#F3F1EC';ctx.fillRect(x,y,w,h);ctx.strokeStyle='rgba(0,0,0,.12)';ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.strokeRect(x+6,y+6,w-12,h-12);ctx.setLineDash([]);ctx.font='500 12px sans-serif';ctx.fillStyle='rgba(0,0,0,.4)';ctx.textAlign='center';ctx.fillText('Imagen no disponible',x+w/2,y+h/2)}
+  ctx.restore()
+  ctx.save();rr(ctx,x,y,w,h,10);ctx.strokeStyle='rgba(0,0,0,.06)';ctx.lineWidth=1;ctx.stroke();ctx.restore()
+}
+function swatch(ctx,hex,label,x,y,w,h){
+  ctx.save();rr(ctx,x,y,w,h,10);ctx.fillStyle=hex;ctx.fill();ctx.restore()
+  const f=fgc(hex)
+  ctx.save();ctx.font='500 13px sans-serif';ctx.fillStyle=f.replace(/[\d.]+\)$/,'0.75)');ctx.textAlign='left';if(h>40)ctx.fillText(label,x+10,y+22)
+  ctx.font='12px sans-serif';ctx.fillStyle=f.replace(/[\d.]+\)$/,'0.55)');if(h>40)ctx.fillText(hex.toUpperCase(),x+10,y+h-12)
+  ctx.restore()
+}
+
+async function compose(reuse=false){
+  const ov=document.getElementById('ov');ov.classList.remove('hidden')
+  document.getElementById('ovtxt').textContent='Preparando paleta…'
+  document.getElementById('ovbar').style.width='10%'
+  const pal=buildPal()
+  let result
+  if(reuse&&cached){result=cached}
+  else{
+    result=pickAll()
+    const total=result.texMats.length+result.furniturePicks.length
+    let loaded=0
+    const upd=()=>{document.getElementById('ovbar').style.width=`${Math.round(loaded/total*75)}%`;document.getElementById('ovtxt').textContent=`Cargando piezas (${loaded}/${total})…`}
+    upd()
+    result.texMats=await Promise.all(result.texMats.map(async m=>{const img=await loadImg(ghUrl('texturas',m.file));loaded++;upd();return{...m,img}}))
+    result.furniturePicks=await Promise.all(result.furniturePicks.map(async m=>{const img=await loadImg(ghUrl('mobiliario',m.file));loaded++;upd();return{...m,img}}))
+    cached=result
+  }
+  document.getElementById('ovtxt').textContent='Componiendo…'
+  document.getElementById('ovbar').style.width='92%'
+
+  const SW=110,SX=W-SW-P,ZW=SX-P*2,ZH=H-P*2
+  const topH=Math.floor(ZH*.46),botY=P+topH+P,botH=ZH-topH-P
+  const texW=splitWidths(ZW,[.34,.24,.22,.20],P)
+  const furnW=splitWidths(ZW,[.22,.46,.32],P)
+  const sh=(ZH-P*(pal.length-1))/pal.length
+
+  const canvas=document.getElementById('mb'),ctx=canvas.getContext('2d')
+  ctx.fillStyle='#FAFAF8';ctx.fillRect(0,0,W,H)
+
+  let tx=P
+  texW.forEach((w,i)=>{
+    const m=result.texMats[i]
+    const label=m&&HARD.includes(m.cat)?CLABELS[m.cat]:null
+    blkCover(ctx,m?.img,'#FAFAF8',tx,P,w,topH,label);tx+=w+P
+  })
+  let fx=P
+  ;[0,2,1].forEach((idx,i)=>{
+    const m=result.furniturePicks[idx]
+    blkContain(ctx,m?.img,fx,botY,furnW[i],botH);fx+=furnW[i]+P
+  })
+  pal.forEach((c,i)=>{swatch(ctx,toHex(c.h,c.s,c.l),c.label,SX,P+i*(sh+P),SW,sh)})
+
+  document.getElementById('ovbar').style.width='100%'
+  const missing=[...result.texMats,...result.furniturePicks].filter(m=>!m.img).length
+  setTimeout(()=>{
+    ov.classList.add('hidden')
+    const tl=result.temp==='calida'?'cálida':result.temp==='fria'?'fría':`neutra → ${result.isWarm?'cálido':'frío'}`
+    document.getElementById('mbfoot').textContent=`Paleta ${tl} · Estilo: ${result.dom}${missing?' · '+missing+' sin cargar':''}`
+  },150)
+}
+
+function goStep(n){
+  document.querySelectorAll('.stab').forEach((t,i)=>t.classList.toggle('on',i+1===n))
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('on',i+1===n))
+  if(n===2)buildStep2()
+  if(n===3){cached=null;compose()}
+}
+document.querySelectorAll('.stab').forEach(t=>t.onclick=()=>goStep(+t.dataset.s))
+document.getElementById('varbtn').onclick=()=>compose(false)
+document.getElementById('dlbtn').onclick=()=>{const a=document.createElement('a');a.download='moodboard.png';a.href=document.getElementById('mb').toDataURL('image/png');a.click()}
+</script>
+</body>
+</html>
