@@ -148,33 +148,33 @@ const W=1300,H=900,GHUSER='ssumor',GHREPO='Texturas_moodboard',GHBRANCH='main'
 function ghUrl(folder,file){return `https://cdn.jsdelivr.net/gh/${GHUSER}/${GHREPO}@${GHBRANCH}/${folder}/${encodeURIComponent(file)}`}
 
 const LIBRARY=[
-  {file:'fieltro_gris.jpg',cat:'fieltro',warm:null,light:'medio',style:['rustico'],finish:'mate'},
-  {file:'hormigon_beige.jpg',cat:'hormigon',warm:true,light:'claro',style:['industrial'],finish:'mate'},
-  {file:'hormigon_beige2.jpg',cat:'hormigon',warm:true,light:'claro',style:['industrial'],finish:'mate'},
-  {file:'hormigon_gris.jpg',cat:'hormigon',warm:false,light:'claro',style:['industrial'],finish:'mate'},
-  {file:'lino_liso_gris.jpg',cat:'lino',warm:null,light:'claro',style:['rustico'],finish:'mate'},
-  {file:'lino_liso_gris_oscuro.jpg',cat:'lino',warm:null,light:'oscuro',style:['rustico'],finish:'mate'},
-  {file:'lino_liso_gris_verdoso.jpg',cat:'lino',warm:false,light:'medio',style:['rustico'],finish:'mate'},
-  {file:'lino_liso_naranja.jpg',cat:'lino',warm:true,light:'medio',vivid:true,style:['rustico'],finish:'mate'},
-  {file:'madera_dorada.jpg',cat:'madera',warm:true,light:'medio',style:['rustico'],finish:'satinado'},
-  {file:'madera_parquet_pino_dorado.jpg',cat:'madera',warm:true,light:'medio',joints:true,style:['rustico'],finish:'satinado'},
-  {file:'madera_pino_dorada.jpg',cat:'madera',warm:true,light:'claro',style:['rustico'],finish:'mate'},
-  {file:'madera_roble_dorada.jpg',cat:'madera',warm:true,light:'medio',style:['refinado'],finish:'satinado'},
-  {file:'madera_roble_natural.jpg',cat:'madera',warm:true,light:'medio',style:['rustico'],finish:'mate'},
-  {file:'madera_roble_oscura.jpg',cat:'madera',warm:true,light:'oscuro',style:['refinado'],finish:'satinado'},
-  {file:'madera_sapeli_oscura.jpg',cat:'madera',warm:true,light:'oscuro',style:['refinado'],finish:'satinado'},
-  {file:'marmol_gris_glossy.jpg',cat:'marmol',warm:false,light:'claro',style:['refinado'],finish:'glossy'},
-  {file:'marmol_onyx_blanco.jpg',cat:'marmol',warm:false,light:'claro',style:['refinado'],finish:'glossy'},
-  {file:'metal_acero_frio.jpg',cat:'metal',warm:false,light:'medio',style:['industrial'],finish:'satinado'},
-  {file:'metal_cepillado_frio.jpg',cat:'metal',warm:false,light:'medio',style:['industrial'],finish:'satinado'},
-  {file:'metal_cobre_cálido.jpg',cat:'metal',warm:true,light:'medio',vivid:true,style:['refinado'],finish:'satinado'},
-  {file:'metal_cromado_frio.jpg',cat:'metal',warm:false,light:'claro',style:['refinado'],finish:'glossy'},
-  {file:'metal_mate_gris_oscuro.jpg',cat:'metal',warm:null,light:'oscuro',style:['industrial'],finish:'mate'},
-  {file:'metal_mate_negro.jpg',cat:'metal',warm:null,light:'oscuro',style:['industrial'],finish:'mate'},
-  {file:'mortero_grano_blanco.jpg',cat:'mortero',warm:false,light:'claro',style:['rustico'],finish:'mate'},
-  {file:'mortero_grano_blanco2.jpg',cat:'mortero',warm:false,light:'claro',style:['rustico'],finish:'mate'},
-  {file:'tapiceria_gris.jpg',cat:'tapiceria',warm:null,light:'medio',style:['refinado'],finish:'mate'},
-  {file:'tapiceria_hueso.jpg',cat:'tapiceria',warm:true,light:'claro',style:['refinado'],finish:'mate'},
+  {file:'fieltro_gris.jpg',cat:'fieltro',warm:null,light:'medio',style:['rustico']},
+  {file:'hormigon_beige.jpg',cat:'hormigon',warm:true,light:'claro',style:['industrial']},
+  {file:'hormigon_beige2.jpg',cat:'hormigon',warm:true,light:'claro',style:['industrial']},
+  {file:'hormigon_gris.jpg',cat:'hormigon',warm:false,light:'claro',style:['industrial']},
+  {file:'lino_liso_gris.jpg',cat:'lino',warm:null,light:'claro',style:['rustico']},
+  {file:'lino_liso_gris_oscuro.jpg',cat:'lino',warm:null,light:'oscuro',style:['rustico']},
+  {file:'lino_liso_gris_verdoso.jpg',cat:'lino',warm:false,light:'medio',style:['rustico']},
+  {file:'lino_liso_naranja.jpg',cat:'lino',warm:true,light:'medio',vivid:true,style:['rustico']},
+  {file:'madera_dorada.jpg',cat:'madera',warm:true,light:'medio',style:['rustico']},
+  {file:'madera_parquet_pino_dorado.jpg',cat:'madera',warm:true,light:'medio',style:['rustico']},
+  {file:'madera_pino_dorada.jpg',cat:'madera',warm:true,light:'claro',style:['rustico']},
+  {file:'madera_roble_dorada.jpg',cat:'madera',warm:true,light:'medio',style:['refinado']},
+  {file:'madera_roble_natural.jpg',cat:'madera',warm:true,light:'medio',style:['rustico']},
+  {file:'madera_roble_oscura.jpg',cat:'madera',warm:true,light:'oscuro',style:['refinado']},
+  {file:'madera_sapeli_oscura.jpg',cat:'madera',warm:true,light:'oscuro',style:['refinado']},
+  {file:'marmol_gris_glossy.jpg',cat:'marmol',warm:false,light:'claro',style:['refinado']},
+  {file:'marmol_onyx_blanco.jpg',cat:'marmol',warm:false,light:'claro',style:['refinado']},
+  {file:'metal_acero_frio.jpg',cat:'metal',warm:false,light:'medio',style:['industrial']},
+  {file:'metal_cepillado_frio.jpg',cat:'metal',warm:false,light:'medio',style:['industrial']},
+  {file:'metal_cobre_cálido.jpg',cat:'metal',warm:true,light:'medio',vivid:true,style:['refinado']},
+  {file:'metal_cromado_frio.jpg',cat:'metal',warm:false,light:'claro',style:['refinado']},
+  {file:'metal_mate_gris_oscuro.jpg',cat:'metal',warm:null,light:'oscuro',style:['industrial']},
+  {file:'metal_mate_negro.jpg',cat:'metal',warm:null,light:'oscuro',style:['industrial']},
+  {file:'mortero_grano_blanco.jpg',cat:'mortero',warm:false,light:'claro',style:['rustico']},
+  {file:'mortero_grano_blanco2.jpg',cat:'mortero',warm:false,light:'claro',style:['rustico']},
+  {file:'tapiceria_gris.jpg',cat:'tapiceria',warm:null,light:'medio',style:['refinado']},
+  {file:'tapiceria_hueso.jpg',cat:'tapiceria',warm:true,light:'claro',style:['refinado']},
 ]
 
 const FURNITURE=[
@@ -207,6 +207,28 @@ const FURNITURE=[
   {file:'mesa_redonda_roble_kave_home_naanim.png',type:'mesa',warm:true,light:'medio',style:['rustico']},
   {file:'mesa_rectangular_madera_calida_kave_home_deyanira.jpg',type:'mesa',warm:true,light:'medio',style:['rustico','escandinavo']},
 ]
+
+// ── Extrae la marca de un nombre de archivo de mobiliario.
+// Para añadir una marca nueva: añade una línea con su palabra clave. ──
+function extractBrand(filename){
+  if(filename.includes('viccarbe'))  return 'viccarbe'
+  if(filename.includes('hansem'))    return 'hansem'
+  if(filename.includes('kave'))      return 'kave'
+  if(filename.includes('knoll'))     return 'knoll'
+  if(filename.includes('grassoler')) return 'grassoler'
+  if(filename.includes('gallery'))   return 'gallery'
+  if(filename.includes('indias'))    return 'indias'
+  return 'otra'
+}
+
+// ── Calcula automáticamente cuántas piezas hay por marca en FURNITURE
+// y asigna un bonus inversamente proporcional a su representación.
+// Se recalcula solo: cuando añadas piezas nuevas, solo toca FURNITURE. ──
+const BRAND_COUNT={}
+FURNITURE.forEach(f=>{const b=extractBrand(f.file);BRAND_COUNT[b]=(BRAND_COUNT[b]||0)+1})
+const maxBrand=Math.max(...Object.values(BRAND_COUNT))
+const BRAND_BONUS={}
+Object.keys(BRAND_COUNT).forEach(b=>{BRAND_BONUS[b]=(1-BRAND_COUNT[b]/maxBrand)*2.0})
 
 const STYLE_COMPAT={
   rustico:{rustico:'directo',industrial:'directo',refinado:'matizado',escandinavo:'matizado'},
@@ -425,13 +447,17 @@ function pickAll(){
   const anchorRanked=[...anchorOpts].sort((a,b)=>(baseScore(b)+anchorTempBonus(b,isWarm))-(baseScore(a)+anchorTempBonus(a,isWarm)))
   const anchor=pick(anchorRanked.slice(0,3))
   const dom=anchor.style[0]
+
   function csTex(item){return baseScore(item)+(bestCompat(dom,item.style)==='directo'?4:2)}
   function csFur(item){
     const compat=bestCompat(dom,item.style)
     const tp=item.warm!==null&&item.warm!==isWarm?-3:0
-    const bb=Math.max(...item.style.map(s=>SBB[s]))
-    return baseScore(item)+(compat==='directo'?4:2)+tp+bb
+    const sb=Math.max(...item.style.map(s=>SBB[s]))
+    // ── NUEVO: bonus de diversidad de marca ──
+    const bb=BRAND_BONUS[extractBrand(item.file)]||0
+    return baseScore(item)+(compat==='directo'?4:2)+tp+sb+bb
   }
+
   const texMats=[anchor]
   ;[['madera'],['metal'],['lino','tapiceria','fieltro']].forEach(cats=>{
     const opts=LIBRARY.filter(i=>cats.includes(i.cat))
@@ -439,7 +465,7 @@ function pickAll(){
   })
   const furniturePicks=['silla','mesa','sofa'].map(type=>{
     const opts=FURNITURE.filter(f=>f.type===type)
-    return{...[...opts].sort((a,b)=>csFur(b)-csFur(a))[0],flag:bestCompat(dom,[...opts].sort((a,b)=>csFur(b)-csFur(a))[0].style)}
+    return{...[...opts].sort((a,b)=>csFur(b)-csFur(a))[0]}
   })
   return{texMats,furniturePicks,dom,isWarm,temp}
 }
@@ -520,15 +546,15 @@ async function compose(reuse=false){
   let tx=P
   texW.forEach((w,i)=>{
     const m=result.texMats[i]
-    const label=m&&HARD.includes(m.cat)?CLABELS[m.cat]:null
-    blkCover(ctx,m?.img,'#FAFAF8',tx,P,w,topH,label);tx+=w+P
+    blkCover(ctx,m?.img,'#FAFAF8',tx,P,w,topH,m&&HARD.includes(m.cat)?CLABELS[m.cat]:null)
+    tx+=w+P
   })
   let fx=P
   ;[0,2,1].forEach((idx,i)=>{
-    const m=result.furniturePicks[idx]
-    blkContain(ctx,m?.img,fx,botY,furnW[i],botH);fx+=furnW[i]+P
+    blkContain(ctx,result.furniturePicks[idx]?.img,fx,botY,furnW[i],botH)
+    fx+=furnW[i]+P
   })
-  pal.forEach((c,i)=>{swatch(ctx,toHex(c.h,c.s,c.l),c.label,SX,P+i*(sh+P),SW,sh)})
+  pal.forEach((c,i)=>swatch(ctx,toHex(c.h,c.s,c.l),c.label,SX,P+i*(sh+P),SW,sh))
 
   document.getElementById('ovbar').style.width='100%'
   const missing=[...result.texMats,...result.furniturePicks].filter(m=>!m.img).length
