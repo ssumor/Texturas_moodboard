@@ -8,13 +8,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F7F5F2;color:#1a1714;min-height:100vh;padding:1.5rem 1rem 3rem}
 .app{max-width:900px;margin:0 auto}
-h1{font-size:18px;font-weight:600;margin-bottom:1.4rem;color:#1a1714}
+h1{font-size:18px;font-weight:600;margin-bottom:1.4rem}
 .steps{display:flex;border-bottom:1px solid #e0dbd4;margin-bottom:1.4rem}
-.stab{padding:8px 16px;font-size:12px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;white-space:nowrap}
+.stab{padding:8px 16px;font-size:12px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .stab.on{color:#1a1714;border-bottom-color:#1a1714}
 .panel{display:none}.panel.on{display:block}
 .input-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
-.icard{flex:1;min-width:200px;border:1px solid #e0dbd4;border-radius:12px;padding:14px;position:relative;transition:border-color .12s;background:#fff}
+.icard{flex:1;min-width:200px;border:1px solid #e0dbd4;border-radius:12px;padding:14px;position:relative;background:#fff;transition:border-color .12s}
 .icard.sel{border-color:#1a1714}
 .icard-title{font-size:13px;font-weight:500;margin-bottom:3px}
 .icard-sub{font-size:11px;color:#888;margin-bottom:10px}
@@ -208,8 +208,8 @@ const FURNITURE=[
   {file:'mesa_rectangular_madera_calida_kave_home_deyanira.jpg',type:'mesa',warm:true,light:'medio',style:['rustico','escandinavo']},
 ]
 
-// ── Extrae la marca de un nombre de archivo de mobiliario.
-// Para añadir una marca nueva: añade una línea con su palabra clave. ──
+// ── Extrae la marca del nombre de archivo.
+// Para añadir una marca nueva, añade una línea con su palabra clave. ──
 function extractBrand(filename){
   if(filename.includes('viccarbe'))  return 'viccarbe'
   if(filename.includes('hansem'))    return 'hansem'
@@ -220,15 +220,6 @@ function extractBrand(filename){
   if(filename.includes('indias'))    return 'indias'
   return 'otra'
 }
-
-// ── Calcula automáticamente cuántas piezas hay por marca en FURNITURE
-// y asigna un bonus inversamente proporcional a su representación.
-// Se recalcula solo: cuando añadas piezas nuevas, solo toca FURNITURE. ──
-const BRAND_COUNT={}
-FURNITURE.forEach(f=>{const b=extractBrand(f.file);BRAND_COUNT[b]=(BRAND_COUNT[b]||0)+1})
-const maxBrand=Math.max(...Object.values(BRAND_COUNT))
-const BRAND_BONUS={}
-Object.keys(BRAND_COUNT).forEach(b=>{BRAND_BONUS[b]=(1-BRAND_COUNT[b]/maxBrand)*2.0})
 
 const STYLE_COMPAT={
   rustico:{rustico:'directo',industrial:'directo',refinado:'matizado',escandinavo:'matizado'},
@@ -436,6 +427,26 @@ function splitWidths(totalW,fractions,gap){
   return widths
 }
 
+// ── Selecciona una pieza de mobiliario eligiendo primero la marca
+// aleatoriamente (garantía de igualdad entre marcas) y luego la
+// mejor variante de esa marca según temperatura y compatibilidad. ──
+function pickByBrand(candidates, scoreFn){
+  // Agrupar candidatos por marca
+  const byBrand={}
+  candidates.forEach(c=>{
+    const b=extractBrand(c.file)
+    if(!byBrand[b])byBrand[b]=[]
+    byBrand[b].push(c)
+  })
+  const brands=Object.keys(byBrand)
+  if(!brands.length)return candidates[0]
+  // Elegir marca aleatoriamente
+  const chosenBrand=pick(brands)
+  // Dentro de esa marca, elegir la variante con mejor score
+  const brandCandidates=byBrand[chosenBrand]
+  return brandCandidates.reduce((best,c)=>scoreFn(c)>scoreFn(best)?c:best, brandCandidates[0])
+}
+
 function pickAll(){
   const temp=classifyTemp(G.H,G.S)
   const isWarm=temp==='calida'?true:temp==='fria'?false:(Math.random()<0.5)
@@ -453,9 +464,7 @@ function pickAll(){
     const compat=bestCompat(dom,item.style)
     const tp=item.warm!==null&&item.warm!==isWarm?-3:0
     const sb=Math.max(...item.style.map(s=>SBB[s]))
-    // ── NUEVO: bonus de diversidad de marca ──
-    const bb=BRAND_BONUS[extractBrand(item.file)]||0
-    return baseScore(item)+(compat==='directo'?4:2)+tp+sb+bb
+    return baseScore(item)+(compat==='directo'?4:2)+tp+sb
   }
 
   const texMats=[anchor]
@@ -463,10 +472,13 @@ function pickAll(){
     const opts=LIBRARY.filter(i=>cats.includes(i.cat))
     if(opts.length)texMats.push([...opts].sort((a,b)=>csTex(b)-csTex(a))[0])
   })
+
+  // ── Mobiliario: marca aleatoria primero, mejor variante dentro de ella ──
   const furniturePicks=['silla','mesa','sofa'].map(type=>{
     const opts=FURNITURE.filter(f=>f.type===type)
-    return{...[...opts].sort((a,b)=>csFur(b)-csFur(a))[0]}
+    return pickByBrand(opts, csFur)
   })
+
   return{texMats,furniturePicks,dom,isWarm,temp}
 }
 
@@ -560,8 +572,9 @@ async function compose(reuse=false){
   const missing=[...result.texMats,...result.furniturePicks].filter(m=>!m.img).length
   setTimeout(()=>{
     ov.classList.add('hidden')
+    const names=result.furniturePicks.map(f=>extractBrand(f.file)).join(' · ')
     const tl=result.temp==='calida'?'cálida':result.temp==='fria'?'fría':`neutra → ${result.isWarm?'cálido':'frío'}`
-    document.getElementById('mbfoot').textContent=`Paleta ${tl} · Estilo: ${result.dom}${missing?' · '+missing+' sin cargar':''}`
+    document.getElementById('mbfoot').textContent=`Paleta ${tl} · Estilo: ${result.dom} · Marcas: ${names}${missing?' · '+missing+' sin cargar':''}`
   },150)
 }
 
