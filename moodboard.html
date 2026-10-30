@@ -138,6 +138,7 @@ canvas{display:block;width:100%;border-radius:12px;border:1px solid #e0dbd4}
   <div class="brow" style="margin-bottom:6px">
     <span class="mbfoot" id="mbfoot" style="flex:1"></span>
     <button class="btn" onclick="goStep(2)">← Volver</button>
+    <label class="mbfoot" style="display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" id="tintChk" checked> Teñir textil</label>
     <button class="btn" id="varbtn">Nueva composición</button>
     <button class="btn" id="dlbtn">Descargar PNG</button>
   </div>
@@ -493,6 +494,39 @@ function loadImg(url){
 }
 
 let cached=null
+let TINT_ON=true
+const TEXTILE_CATS=['lino','tapiceria','fieltro']
+
+// Elige el color de paleta con el que se tiñe el textil: Base o Soporte 1
+// (el excéntrico se queda solo en la franja de paleta).
+function chooseTint(pal){
+  const cands=[pal[0],pal[1]].filter(c=>c.l>=30&&c.l<=82)
+  const c=cands.length?pick(cands):pal[0]
+  return{h:c.h,s:c.s,l:c.l,label:c===pal[0]?'Base':'Soporte 1'}
+}
+
+// Tiñe una textura conservando su trama: recentra la luminosidad de cada
+// píxel en torno a la del color objetivo y aplica su matiz y saturación.
+// Devuelve un canvas del tamaño exacto de la celda.
+function tintTexture(img,w,h,target){
+  const c=document.createElement('canvas');c.width=w;c.height=h
+  const x=c.getContext('2d')
+  const sc=Math.max(w/img.width,h/img.height)
+  x.drawImage(img,(w-img.width*sc)/2,(h-img.height*sc)/2,img.width*sc,img.height*sc)
+  const id=x.getImageData(0,0,w,h),d=id.data
+  let sum=0
+  for(let i=0;i<d.length;i+=4)sum+=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2]
+  const mean=sum/(w*h)/255*100
+  const Lt=cl(target.l,30,80)
+  for(let i=0;i<d.length;i+=4){
+    const Y=(0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2])/255*100
+    const L=cl(Lt+(Y-mean),6,96)
+    const rgb=hsl2rgb(target.h,target.s,L)
+    d[i]=rgb[0];d[i+1]=rgb[1];d[i+2]=rgb[2]
+  }
+  x.putImageData(id,0,0)
+  return c
+}
 const P=14
 const HARD=['marmol','hormigon','mortero','metal']
 const CLABELS={marmol:'Mármol',hormigon:'Hormigón',mortero:'Mortero',metal:'Metal'}
@@ -530,11 +564,12 @@ async function compose(reuse=false){
   const ov=document.getElementById('ov');ov.classList.remove('hidden')
   document.getElementById('ovtxt').textContent='Preparando paleta…'
   document.getElementById('ovbar').style.width='10%'
-  const pal=buildPal()
   let result
   if(reuse&&cached){result=cached}
   else{
     result=pickAll()
+    result.pal=buildPal()
+    result.tint=chooseTint(result.pal)
     const total=result.texMats.length+result.furniturePicks.length
     let loaded=0
     const upd=()=>{document.getElementById('ovbar').style.width=`${Math.round(loaded/total*75)}%`;document.getElementById('ovtxt').textContent=`Cargando piezas (${loaded}/${total})…`}
@@ -543,6 +578,7 @@ async function compose(reuse=false){
     result.furniturePicks=await Promise.all(result.furniturePicks.map(async m=>{const img=await loadImg(ghUrl('mobiliario',m.file));loaded++;upd();return{...m,img}}))
     cached=result
   }
+  const pal=result.pal
   document.getElementById('ovtxt').textContent='Componiendo…'
   document.getElementById('ovbar').style.width='92%'
 
@@ -558,7 +594,11 @@ async function compose(reuse=false){
   let tx=P
   texW.forEach((w,i)=>{
     const m=result.texMats[i]
-    blkCover(ctx,m?.img,'#FAFAF8',tx,P,w,topH,m&&HARD.includes(m.cat)?CLABELS[m.cat]:null)
+    let src=m?.img
+    if(TINT_ON&&src&&result.tint&&TEXTILE_CATS.includes(m.cat)){
+      try{src=tintTexture(src,w,topH,result.tint)}catch(e){src=m.img}
+    }
+    blkCover(ctx,src,'#FAFAF8',tx,P,w,topH,m&&HARD.includes(m.cat)?CLABELS[m.cat]:null)
     tx+=w+P
   })
   let fx=P
@@ -574,7 +614,7 @@ async function compose(reuse=false){
     ov.classList.add('hidden')
     const names=result.furniturePicks.map(f=>extractBrand(f.file)).join(' · ')
     const tl=result.temp==='calida'?'cálida':result.temp==='fria'?'fría':`neutra → ${result.isWarm?'cálido':'frío'}`
-    document.getElementById('mbfoot').textContent=`Paleta ${tl} · Estilo: ${result.dom} · Marcas: ${names}${missing?' · '+missing+' sin cargar':''}`
+    document.getElementById('mbfoot').textContent=`Paleta ${tl} · Estilo: ${result.dom} · Marcas: ${names}${TINT_ON&&result.tint?' · Textil teñido: '+result.tint.label+' '+toHex(result.tint.h,result.tint.s,result.tint.l).toUpperCase():''}${missing?' · '+missing+' sin cargar':''}`
   },150)
 }
 
@@ -586,6 +626,7 @@ function goStep(n){
 }
 document.querySelectorAll('.stab').forEach(t=>t.onclick=()=>goStep(+t.dataset.s))
 document.getElementById('varbtn').onclick=()=>compose(false)
+document.getElementById('tintChk').onchange=e=>{TINT_ON=e.target.checked;compose(true)}
 document.getElementById('dlbtn').onclick=()=>{const a=document.createElement('a');a.download='moodboard.png';a.href=document.getElementById('mb').toDataURL('image/png');a.click()}
 </script>
 </body>
