@@ -497,12 +497,17 @@ let cached=null
 let TINT_ON=true
 const TEXTILE_CATS=['lino','tapiceria','fieltro']
 
-// Elige el color de paleta con el que se tiñe el textil: Base o Soporte 1
+// Elige el color de paleta con el que se tiñe el textil, con probabilidades
+// ajustables: [Base, Soporte 1, Soporte 2]. Deben sumar 1.
 // (el excéntrico se queda solo en la franja de paleta).
+const TINT_WEIGHTS=[0.5,0.3,0.2]
+const TINT_LABELS=['Base','Soporte 1','Soporte 2']
 function chooseTint(pal){
-  const cands=[pal[0],pal[1]].filter(c=>c.l>=30&&c.l<=82)
-  const c=cands.length?pick(cands):pal[0]
-  return{h:c.h,s:c.s,l:c.l,label:c===pal[0]?'Base':'Soporte 1'}
+  const r=Math.random()
+  let acc=0,idx=0
+  for(let i=0;i<TINT_WEIGHTS.length;i++){acc+=TINT_WEIGHTS[i];if(r<acc){idx=i;break}}
+  const c=pal[idx]
+  return{h:c.h,s:c.s,l:c.l,label:TINT_LABELS[idx]}
 }
 
 // Tiñe una textura conservando su trama: recentra la luminosidad de cada
